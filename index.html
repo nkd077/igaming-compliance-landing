@@ -1,0 +1,578 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Brightmoor Compliance Landing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: card-table felt page; a neutral demo console bar on top, hero (copy + offer | roulette wheel), games, RG tools, compliance map, footer. Single deliberate dark look. */
+:root{
+  --felt:#0e3a32; --felt-deep:#082721; --felt-line:#235a4d;
+  --ivory:#efeadb; --chalk:#a3c0b5; --brass:#d3a64c; --brass-ink:#1b1406;
+  --console:#121618; --console-line:#2a3235; --console-fg:#cdd5d2;
+  --ok:#72d1a0; --warn:#eab650; --stop:#e7705b;
+  --pocket-red:#b5412e; --pocket-black:#161a1b; --pocket-zero:#2b8b65;
+  --f-display:"Bricolage Grotesque","Avenir Next",system-ui,sans-serif;
+  --f-body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--felt);color:var(--ivory);font-family:var(--f-body);font-size:16px;line-height:1.55}
+a{color:var(--brass)}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.08}
+p{margin:0}
+.wrap{max-width:1120px;margin-inline:auto;padding-inline:20px}
+.mono{font-family:var(--f-mono);font-size:12px;letter-spacing:.04em}
+button,select,input{font:inherit}
+:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
+
+/* demo console */
+.console{position:sticky;top:env(safe-area-inset-top,0px);z-index:40;background:var(--console);color:var(--console-fg);border-bottom:1px solid var(--console-line)}
+.console .wrap{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;padding-block:10px}
+.console .tag{background:var(--brass);color:var(--brass-ink);padding:3px 8px;border-radius:3px;font-weight:600}
+.console label{display:flex;gap:8px;align-items:center}
+.console select{background:#1c2225;color:var(--console-fg);border:1px solid var(--console-line);border-radius:4px;padding:4px 8px}
+.console .status{display:flex;gap:8px;align-items:center;flex-wrap:wrap;min-width:0}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border-radius:999px;border:1px solid currentColor;font-family:var(--f-mono);font-size:11px;letter-spacing:.04em}
+.pill.ok{color:var(--ok)} .pill.stop{color:var(--stop)} .pill.muted{color:#8a9894}
+.console .spacer{flex:1}
+
+/* compliance labels */
+[data-note]{position:relative}
+body.annot [data-note]{outline:1.5px dashed rgba(211,166,76,.75);outline-offset:6px;border-radius:6px}
+body.annot [data-note]::after{content:attr(data-note);position:absolute;top:-17px;right:4px;font:600 11px/1 var(--f-mono);letter-spacing:.05em;background:var(--brass);color:var(--brass-ink);padding:4px 6px;border-radius:3px;pointer-events:none;z-index:2}
+
+/* site header */
+.site{border-bottom:1px solid var(--felt-line)}
+.site .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:16px;flex-wrap:wrap}
+.brand{font-family:var(--f-display);font-weight:700;font-size:24px;letter-spacing:-.01em}
+.brand span{color:var(--brass)}
+.site-right{display:flex;align-items:center;gap:12px}
+.age-badge{display:grid;place-items:center;width:38px;height:38px;border-radius:50%;border:2px solid var(--ivory);font:700 13px var(--f-display)}
+.lang{display:flex;border:1px solid var(--felt-line);border-radius:6px;overflow:hidden}
+.lang button{background:none;border:0;color:var(--chalk);padding:6px 10px;cursor:pointer;font-family:var(--f-mono);font-size:12px}
+.lang button[aria-pressed="true"]{background:var(--felt-line);color:var(--ivory)}
+
+/* hero */
+.hero{background:radial-gradient(120% 90% at 75% 40%,#13493f 0%,var(--felt) 55%,var(--felt-deep) 100%)}
+.hero .wrap{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:40px;align-items:center;padding-block:56px 64px}
+.hero-copy{display:grid;gap:20px;min-width:0}
+.eyebrow{color:var(--chalk);text-transform:uppercase}
+.hero h1{font-size:clamp(34px,5.2vw,60px);font-weight:700;letter-spacing:-.02em}
+.hero .sub{font-size:18px;color:var(--chalk);max-width:52ch}
+.actions{display:flex;gap:12px;flex-wrap:wrap}
+.btn{border:0;border-radius:8px;padding:13px 20px;font-weight:600;cursor:pointer}
+.btn.primary{background:var(--brass);color:var(--brass-ink)}
+.btn.primary:hover{background:#e0b65e}
+.btn.ghost{background:transparent;color:var(--ivory);box-shadow:inset 0 0 0 1.5px var(--felt-line)}
+.btn.ghost:hover{box-shadow:inset 0 0 0 1.5px var(--chalk)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+.offer{display:grid;gap:8px;padding:18px 20px;border:1px solid var(--felt-line);border-radius:10px;background:rgba(8,39,33,.55);max-width:560px}
+.offer h3{font-size:20px}
+.offer .terms{font-size:13px;color:var(--chalk)}
+.offer.blocked{border-color:var(--stop)}
+.offer.blocked h3{color:var(--stop)}
+
+.wheel-box{display:grid;justify-items:center;gap:12px;min-width:0}
+.wheel-box canvas{width:min(100%,380px);aspect-ratio:1;max-width:100%;animation:spin 160s linear infinite;will-change:transform}
+@keyframes spin{to{transform:rotate(360deg)}}
+body.gate-open .wheel-box canvas{animation-play-state:paused}
+@media (prefers-reduced-motion:reduce){.wheel-box canvas{animation:none}}
+.wheel-box .mono{color:var(--chalk);text-align:center}
+
+/* sections */
+section.block{padding-block:56px;border-top:1px solid var(--felt-line)}
+.sec-head{display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap;margin-bottom:24px}
+.sec-head h2{font-size:clamp(26px,3.4vw,36px);font-weight:700;letter-spacing:-.01em}
+.sec-head p{color:var(--chalk);max-width:48ch}
+
+.games{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.game{display:grid;gap:10px;padding:20px;border-radius:10px;background:var(--felt-deep)}
+.game h3{font-size:20px}
+.game dl{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:0;font-size:14px}
+.game dt{color:var(--chalk)} .game dd{margin:0;font-variant-numeric:tabular-nums}
+
+.rg{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;border:1px solid var(--felt-line);border-radius:10px}
+.rg div{padding:20px;display:grid;gap:6px;align-content:start}
+.rg div+div{border-left:1px solid var(--felt-line)}
+.rg h3{font-size:18px}
+.rg p{font-size:14px;color:var(--chalk)}
+.help{margin-top:16px;display:flex;flex-wrap:wrap;gap:8px 24px;font-size:15px}
+.help strong{color:var(--ivory)}
+
+.map-scroll{overflow-x:auto;border:1px solid var(--felt-line);border-radius:10px}
+table{border-collapse:collapse;width:100%;min-width:720px;font-size:14px}
+th,td{text-align:left;padding:12px 16px;vertical-align:top;border-bottom:1px solid var(--felt-line)}
+tr:last-child td{border-bottom:0}
+th{font-family:var(--f-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--chalk);font-weight:600}
+td.id{font-family:var(--f-mono);color:var(--brass);font-weight:600;white-space:nowrap}
+td.src{color:var(--chalk)}
+
+footer{background:var(--felt-deep);padding-block:36px 120px;font-size:13px;color:var(--chalk)}
+footer .wrap{display:grid;gap:10px}
+footer .lic{color:var(--ivory)}
+
+/* age gate */
+.gate{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:20px;background:rgba(4,18,15,.82)}
+.gate-card{width:min(100%,440px);background:var(--felt);border:1px solid var(--felt-line);border-radius:12px;padding:24px;display:grid;gap:16px}
+.gate-card h2{font-size:26px}
+.dob{display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:10px}
+.dob label{display:grid;gap:4px;font-size:12px;color:var(--chalk)}
+.dob input{background:var(--felt-deep);color:var(--ivory);border:1px solid var(--felt-line);border-radius:6px;padding:10px;width:100%;font-variant-numeric:tabular-nums}
+.gate .msg{font-size:14px}
+.gate .msg.err{color:var(--stop)} .gate .msg.ok{color:var(--ok)}
+.gate .row{display:flex;gap:10px;flex-wrap:wrap}
+.step{display:grid;gap:16px}
+.periods{display:flex;gap:8px;flex-wrap:wrap}
+.chip{background:var(--felt-deep);color:var(--chalk);border:1px solid var(--felt-line);border-radius:999px;padding:8px 14px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--brass);color:var(--brass-ink);border-color:var(--brass)}
+.amount{display:flex;align-items:center;gap:8px;background:var(--felt-deep);border:1px solid var(--felt-line);border-radius:6px;padding-inline:12px}
+.amount:focus-within{outline:2px solid var(--brass);outline-offset:2px}
+.amount span{color:var(--chalk);font-size:18px}
+.amount input{flex:1;min-width:0;background:none;border:0;color:var(--ivory);padding-block:10px;font-size:18px;font-variant-numeric:tabular-nums}
+.amount input:focus{outline:none}
+
+/* cookie bar */
+.cookies{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--console);color:var(--console-fg);border-top:1px solid var(--console-line);padding-bottom:env(safe-area-inset-bottom,0px)}
+.cookies .wrap{display:flex;gap:12px 20px;align-items:center;flex-wrap:wrap;padding-block:14px}
+.cookies p{flex:1 1 320px;font-size:14px;min-width:0}
+.cookies .row{display:flex;gap:10px;flex-wrap:wrap}
+.cookies .btn{padding:10px 16px;background:#1f2629;color:var(--console-fg);box-shadow:inset 0 0 0 1px var(--console-line)}
+
+@media (max-width:860px){
+  .hero .wrap{grid-template-columns:1fr;padding-block:40px}
+  .wheel-box{order:-1} .wheel-box canvas{width:min(70%,260px)}
+  .games{grid-template-columns:1fr}
+  .rg{grid-template-columns:1fr 1fr}
+  .rg div:nth-child(3){border-left:0}
+  .rg div:nth-child(n+3){border-top:1px solid var(--felt-line)}
+}
+@media (max-width:480px){
+  .rg{grid-template-columns:1fr}
+  .rg div+div{border-left:0;border-top:1px solid var(--felt-line)}
+  .console .spacer{display:none}
+}
+</style>
+<style>[hidden]{display:none!important}body{margin:0}img{max-width:100%}</style>
+</head>
+<body>
+<div class="console mono" role="region" aria-label="Demo controls">
+  <div class="wrap">
+    <span class="tag">PORTFOLIO DEMO</span>
+    <label for="country">Visitor country
+      <select id="country">
+        <option value="GB">United Kingdom</option>
+        <option value="NL">Netherlands</option>
+        <option value="BR">Brazil</option>
+        <option value="DE">Germany</option>
+        <option value="US">United States</option>
+        <option value="RU">Russia</option>
+      </select>
+    </label>
+    <span class="status" id="status"></span>
+    <span class="spacer"></span>
+    <label for="annot"><input type="checkbox" id="annot" checked> Compliance labels</label>
+  </div>
+</div>
+
+<header class="site">
+  <div class="wrap">
+    <div class="brand">Brightmoor<span>Play</span></div>
+    <div class="site-right">
+      <div class="lang" role="group" aria-label="Language">
+        <button type="button" id="lang-en" aria-pressed="true">EN</button>
+        <button type="button" id="lang-nl" aria-pressed="false">NL</button>
+      </div>
+      <div class="age-badge" data-note="A2" title="18+ only">18+</div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <div class="hero-copy">
+        <p class="eyebrow mono" data-note="L1" id="eyebrow"></p>
+        <h1 data-i="h1"></h1>
+        <p class="sub" data-i="sub"></p>
+        <div class="actions" id="actions">
+          <button class="btn primary" type="button" id="cta" data-i="cta"></button>
+          <button class="btn ghost" type="button" id="to-rg" data-i="cta2"></button>
+        </div>
+        <div class="offer" id="offer"></div>
+      </div>
+      <div class="wheel-box">
+        <canvas id="wheel" width="380" height="380" aria-label="European roulette wheel with 37 pockets"></canvas>
+        <p class="mono" data-i="wheelcap"></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="games">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 data-i="gamesH"></h2>
+        <p data-i="gamesP"></p>
+      </div>
+      <div class="games" data-note="I1">
+        <article class="game">
+          <h3>Harbour Lights</h3>
+          <dl><dt data-i="type"></dt><dd data-i="slot"></dd><dt>RTP</dt><dd>96.10%</dd><dt data-i="vol"></dt><dd data-i="med"></dd></dl>
+        </article>
+        <article class="game">
+          <h3 data-i="roul"></h3>
+          <dl><dt data-i="type"></dt><dd data-i="table"></dd><dt>RTP</dt><dd>97.30%</dd><dt data-i="edge"></dt><dd>2.70% (1/37)</dd></dl>
+        </article>
+        <article class="game">
+          <h3 data-i="bj"></h3>
+          <dl><dt data-i="type"></dt><dd data-i="table"></dd><dt>RTP</dt><dd data-i="bjrtp"></dd><dt data-i="decks"></dt><dd>6</dd></dl>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="rg">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 data-i="rgH"></h2>
+        <p data-i="rgP"></p>
+      </div>
+      <div class="rg" data-note="R1">
+        <div><h3 data-i="r1h"></h3><p data-i="r1p"></p></div>
+        <div><h3 data-i="r2h"></h3><p data-i="r2p"></p></div>
+        <div><h3 data-i="r3h"></h3><p data-i="r3p"></p></div>
+        <div><h3 data-i="r4h"></h3><p id="r4p"></p></div>
+      </div>
+      <p class="help" id="help"></p>
+    </div>
+  </section>
+
+  <section class="block" id="map">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Compliance map</h2>
+        <p>Each dashed label on the page points to a row here. Switch the visitor country above to see the page change per market.</p>
+      </div>
+      <div class="map-scroll">
+        <table>
+          <thead><tr><th>ID</th><th>Requirement</th><th>How this page handles it</th><th>Basis</th></tr></thead>
+          <tbody>
+            <tr><td class="id">G1</td><td>Serve only licensed markets</td><td>Country check before any CTA renders. Unlicensed countries get a plain notice and no sign-up path; Brazil is closed since its 2026 betting ban.</td><td class="src">Google Gambling &amp; games policy; local licensing</td></tr>
+            <tr><td class="id">A1</td><td>Age verification before play</td><td>Date-of-birth gate on sign-up; under-18 entry locks the flow for the session. KYC step follows.</td><td class="src">UKGC; Dutch Remote Gambling Act (KOA)</td></tr>
+            <tr><td class="id">A2</td><td>Clear 18+ signal</td><td>Persistent 18+ mark in the header; no imagery aimed at minors.</td><td class="src">Google policy; CAP/BCAP (UK)</td></tr>
+            <tr><td class="id">T1</td><td>Significant terms beside the offer</td><td>Key conditions sit directly under the headline offer, not behind a link.</td><td class="src">UKGC / ASA guidance</td></tr>
+            <tr><td class="id">M1</td><td>Market-specific offer rules</td><td>Dutch build shows the monthly deposit thresholds that trigger an affordability check (€300 aged 18–24, €700 aged 25+) and points to CRUKS.</td><td class="src">KSA policy rule (in force since Oct 2024)</td></tr>
+            <tr><td class="id">R1</td><td>Responsible gambling information</td><td>Limits, reality checks, time-out and self-exclusion on the landing page, plus helpline per market.</td><td class="src">Google policy (landing pages); regulators</td></tr>
+            <tr><td class="id">I1</td><td>Game information before play</td><td>RTP and house edge shown on each game tile.</td><td class="src">UKGC RTS</td></tr>
+            <tr><td class="id">L1</td><td>Licence disclosure</td><td>Regulator and licence reference per market, repeated in the footer.</td><td class="src">UKGC; KSA</td></tr>
+            <tr><td class="id">C1</td><td>Cookie consent</td><td>Reject and Accept get equal weight; nothing non-essential loads before a choice.</td><td class="src">UK GDPR / PECR; EU GDPR</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p class="lic" id="footlic"></p>
+    <p data-i="footrg"></p>
+    <p>Fictional operator built as a portfolio demo. No real-money play, no data leaves this page. Concept and build: nkd077 · github.com/nkd077</p>
+  </div>
+</footer>
+
+<div class="gate" id="gate" hidden role="dialog" aria-modal="true" aria-labelledby="gate-h" data-note="A1">
+  <div class="gate-card" id="gate-form">
+   <div class="step" id="step-age">
+    <h2 id="gate-h" data-i="gateH"></h2>
+    <p class="msg" data-i="gateP"></p>
+    <div class="dob">
+      <label for="dd"><span data-i="day"></span><input id="dd" inputmode="numeric" pattern="[0-9]*" autocomplete="off" maxlength="2" placeholder="14"></label>
+      <label for="mm"><span data-i="month"></span><input id="mm" inputmode="numeric" pattern="[0-9]*" autocomplete="off" maxlength="2" placeholder="03"></label>
+      <label for="yy"><span data-i="year"></span><input id="yy" inputmode="numeric" pattern="[0-9]*" autocomplete="off" maxlength="4" placeholder="1998"></label>
+    </div>
+    <p class="msg" id="gate-msg" aria-live="polite"></p>
+    <div class="row">
+      <button class="btn primary" type="button" id="gate-go" data-i="confirm"></button>
+      <button class="btn ghost" type="button" id="gate-close" data-i="close"></button>
+    </div>
+   </div>
+   <div class="step" id="step-limit" hidden>
+    <p class="msg ok" data-i="ageOk"></p>
+    <h2 data-i="limH"></h2>
+    <p class="msg" data-i="limP"></p>
+    <div class="periods" role="group" aria-label="Limit period">
+      <button type="button" class="chip" data-period="day" aria-pressed="false" data-i="pDay"></button>
+      <button type="button" class="chip" data-period="week" aria-pressed="true" data-i="pWeek"></button>
+      <button type="button" class="chip" data-period="month" aria-pressed="false" data-i="pMonth"></button>
+    </div>
+    <label class="amount" for="amt"><span id="cur">£</span><input id="amt" inputmode="numeric" pattern="[0-9]*" autocomplete="off" maxlength="6" value="100"></label>
+    <p class="msg" id="lim-msg" aria-live="polite"></p>
+    <div class="row">
+      <button class="btn primary" type="button" id="lim-go" data-i="limGo"></button>
+      <button class="btn ghost" type="button" id="lim-close" data-i="close"></button>
+    </div>
+   </div>
+   <div class="step" id="step-done" hidden>
+    <h2 data-i="doneH"></h2>
+    <p class="msg" id="done-msg"></p>
+    <div class="row"><button class="btn primary" type="button" id="done-close" data-i="doneClose"></button></div>
+   </div>
+  </div>
+</div>
+
+<div class="cookies" id="cookies" data-note="C1">
+  <div class="wrap">
+    <p data-i="cookieP"></p>
+    <div class="row">
+      <button class="btn" type="button" id="ck-reject" data-i="reject"></button>
+      <button class="btn" type="button" id="ck-accept" data-i="accept"></button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+const MARKETS = {
+  GB:{name:"United Kingdom", open:true, lang:"en", domain:"brightmoorplay.co.uk",
+      lic:"Licensed and regulated by the UK Gambling Commission · account no. 00000 (demo)",
+      licNl:"Vergunning van de UK Gambling Commission · accountnr. 00000 (demo)"},
+  NL:{name:"Netherlands", open:true, lang:"nl", domain:"brightmoorplay.nl",
+      lic:"Licensed by the Kansspelautoriteit (KSA) · licence no. 00000 (demo)",
+      licNl:"Vergunning van de Kansspelautoriteit (KSA) · vergunningnr. 00000 (demo)"},
+  BR:{name:"Brazil", open:false}, DE:{name:"Germany", open:false},
+  US:{name:"United States", open:false}, RU:{name:"Russia", open:false}
+};
+const T = {
+  en:{
+    h1:"Slots and table games, with your limits set from day one.",
+    sub:"Set a deposit limit when you sign up. Lowering it applies instantly; raising it takes 24 hours.",
+    cta:"Create account", cta2:"Safer gambling tools",
+    wheelcap:"European wheel · 37 pockets · house edge 2.70%",
+    offerGB:["Welcome offer: 50 spins on Harbour Lights","New customers 18+. Min deposit £10. 50 spins at 10p each, credited within 24 h. Winnings paid as cash with no wagering. Spins expire after 7 days. Full terms apply."],
+    offerNL:["Monthly deposit check","If you deposit more than €300 in a month (aged 18–24) or €700 (aged 25 and over), we check that the amount is affordable for you before you can deposit more."],
+    blocked:(c)=>["Not available in "+c,"Brightmoor Play holds no licence in "+c+", so sign-up and games are switched off for visitors from there."],
+    blockedBR:["Not available in Brazil","Brazil banned fixed-odds betting and online gambling with Provisional Measure 1.394/2026. Licensed sites went offline on 6 October 2026, so this page takes no sign-ups from Brazil."],
+    gamesH:"Games", gamesP:"Return to player and house edge are shown before you open a game.",
+    type:"Type", slot:"Video slot", table:"Table game", vol:"Volatility", med:"Medium", edge:"House edge",
+    roul:"European Roulette", bj:"Classic Blackjack", bjrtp:"up to 99.40%", decks:"Decks",
+    rgH:"Stay in control", rgP:"These tools are on every account and take one tap to set.",
+    r1h:"Deposit limits", r1p:"Daily, weekly or monthly. Lower takes effect now; higher waits 24 hours.",
+    r2h:"Reality checks", r2p:"A reminder every 30 or 60 minutes with time played and net result.",
+    r3h:"Time-out", r3p:"Pause your account for 24 hours up to 6 weeks.",
+    r4h:"Self-exclusion", r4GB:"6 months or longer. You can also block all UK sites at once through GAMSTOP.", r4NL:"Register with CRUKS, the national exclusion register, to block yourself from every licensed Dutch site at once.",
+    helpGB:"<strong>National Gambling Helpline</strong> 0808 8020 133 · free, 24/7 · <strong>BeGambleAware.org</strong>",
+    helpNL:"<strong>Need help?</strong> <strong>Loket Kansspel</strong> (loketkansspel.nl) offers free, anonymous advice about gambling.",
+    footrg:"18+ only. Gambling can be addictive; play within your limits.",
+    gateH:"Confirm your age", gateP:"You must be 18 or over to open an account. Identity checks follow this step.",
+    day:"Day", month:"Month", year:"Year", confirm:"Continue", close:"Close",
+    errFormat:"Enter a valid date of birth.", errMinor:"You must be 18 or over. Registration is closed for this session.",
+    okGB:"In a live build, the next screen hands off to a verification provider for identity and address checks (KYC) before any deposit.",
+    okNL:"In a live build, the next screen runs identity checks and a check against CRUKS, the Dutch exclusion register, before any deposit.",
+    ageOk:"Age confirmed.", limH:"Set your deposit limit",
+    limP:"Required before your first deposit. Lowering it applies at once; raising it takes 24 hours.",
+    pDay:"Daily", pWeek:"Weekly", pMonth:"Monthly", limGo:"Create demo account",
+    errAmt:"Enter an amount from 1 to 100000.", doneH:"Demo account ready", doneClose:"Done",
+    per:{day:"daily",week:"weekly",month:"monthly"},
+    done:(cur,amt,per)=>"Your "+per+" deposit limit is "+cur+amt+".",
+    cookieP:"We use essential cookies to run this site. Analytics and marketing cookies stay off unless you accept them.",
+    reject:"Reject non-essential", accept:"Accept all"
+  },
+  nl:{
+    h1:"Slots en tafelspellen, met je limieten vanaf de eerste dag ingesteld.",
+    sub:"Stel bij het aanmelden een stortingslimiet in. Verlagen gaat direct in; verhogen duurt 24 uur.",
+    cta:"Account aanmaken", cta2:"Tools voor verantwoord spelen",
+    wheelcap:"Europese roulette · 37 vakken · huisvoordeel 2,70%",
+    offerGB:["Welkomstaanbod: 50 spins op Harbour Lights","Nieuwe klanten 18+. Minimale storting £10. 50 spins van 10p, binnen 24 uur bijgeschreven. Winsten worden als geld uitbetaald, zonder inzetvereisten. Spins verlopen na 7 dagen. Volledige voorwaarden van toepassing."],
+    offerNL:["Maandelijkse stortingscheck","Stort je in een maand meer dan €300 (18–24 jaar) of €700 (25 jaar en ouder), dan controleren we eerst of dat bedrag bij je past voordat je verder kunt storten."],
+    blocked:(c)=>["Niet beschikbaar in "+c,"Brightmoor Play heeft geen vergunning in "+c+", dus aanmelden en spelen staan uit voor bezoekers uit dat land."],
+    blockedBR:["Niet beschikbaar in Brazilië","Brazilië heeft sportweddenschappen en online kansspelen verboden met Voorlopige Maatregel 1.394/2026. Sites met een vergunning gingen op 6 oktober 2026 offline, dus deze pagina neemt geen aanmeldingen uit Brazilië aan."],
+    gamesH:"Spellen", gamesP:"Het uitbetalingspercentage (RTP) en het huisvoordeel zie je voordat je een spel opent.",
+    type:"Type", slot:"Videoslot", table:"Tafelspel", vol:"Volatiliteit", med:"Gemiddeld", edge:"Huisvoordeel",
+    roul:"Europese roulette", bj:"Klassiek blackjack", bjrtp:"tot 99,40%", decks:"Kaartspellen",
+    rgH:"Houd de controle", rgP:"Deze tools zitten in elk account en stel je met één tik in.",
+    r1h:"Stortingslimieten", r1p:"Per dag, week of maand. Verlagen gaat direct in; verhogen duurt 24 uur.",
+    r2h:"Speeltijdmeldingen", r2p:"Elke 30 of 60 minuten een melding met je speeltijd en resultaat.",
+    r3h:"Pauze", r3p:"Zet je account op pauze, van 24 uur tot 6 weken.",
+    r4h:"Uitsluiting", r4GB:"6 maanden of langer. In het VK kun je ook alle sites tegelijk blokkeren via GAMSTOP.", r4NL:"Schrijf je in bij CRUKS, het centrale uitsluitingsregister, en je speelt bij geen enkele Nederlandse aanbieder met vergunning meer.",
+    helpGB:"<strong>National Gambling Helpline</strong> 0808 8020 133 · gratis, 24/7 · <strong>BeGambleAware.org</strong>",
+    helpNL:"<strong>Hulp nodig?</strong> Bij <strong>Loket Kansspel</strong> (loketkansspel.nl) krijg je gratis en anoniem advies over gokken.",
+    footrg:"Alleen voor 18+. Gokken kan verslavend zijn; speel binnen je limieten.",
+    gateH:"Bevestig je leeftijd", gateP:"Je moet 18 jaar of ouder zijn om een account te openen. Daarna volgt een identiteitscontrole.",
+    day:"Dag", month:"Maand", year:"Jaar", confirm:"Doorgaan", close:"Sluiten",
+    errFormat:"Vul een geldige geboortedatum in.", errMinor:"Je moet 18 jaar of ouder zijn. Aanmelden is geblokkeerd voor deze sessie.",
+    okGB:"In een echte versie stuurt het volgende scherm je door naar een verificatiedienst voor identiteits- en adrescontrole (KYC), vóór je eerste storting.",
+    okNL:"In een echte versie volgt nu een identiteitscontrole en een controle in CRUKS, het uitsluitingsregister, vóór je eerste storting.",
+    ageOk:"Leeftijd bevestigd.", limH:"Stel je stortingslimiet in",
+    limP:"Verplicht vóór je eerste storting. Verlagen gaat direct in; verhogen duurt 24 uur.",
+    pDay:"Per dag", pWeek:"Per week", pMonth:"Per maand", limGo:"Demo-account aanmaken",
+    errAmt:"Vul een bedrag in van 1 tot 100000.", doneH:"Demo-account klaar", doneClose:"Klaar",
+    per:{day:"dag",week:"week",month:"maand"},
+    done:(cur,amt,per)=>"Je stortingslimiet per "+per+" is "+cur+" "+amt+".",
+    cookieP:"We gebruiken noodzakelijke cookies om deze site te laten werken. Analytische en marketingcookies blijven uit tot je ze accepteert.",
+    reject:"Alleen noodzakelijke", accept:"Alles accepteren"
+  }
+};
+const COUNTRY_NL = {"United Kingdom":"het Verenigd Koninkrijk","Netherlands":"Nederland","Brazil":"Brazilië","Germany":"Duitsland","United States":"de Verenigde Staten","Russia":"Rusland"};
+
+let state = {country:"GB", lang:"en", minorLocked:false};
+const $ = (id)=>document.getElementById(id);
+
+function render(){
+  const m = MARKETS[state.country], t = T[state.lang];
+  document.documentElement.lang = state.lang === "nl" ? "nl" : "en";
+  document.querySelectorAll("[data-i]").forEach(el=>{ const v=t[el.dataset.i]; if(typeof v==="string") el.textContent=v; });
+  $("lang-en").setAttribute("aria-pressed", state.lang==="en");
+  $("lang-nl").setAttribute("aria-pressed", state.lang==="nl");
+
+  const cname = state.lang==="nl" ? COUNTRY_NL[m.name] : m.name;
+  const offer = $("offer");
+  offer.className = "offer"; offer.removeAttribute("data-note");
+  let o;
+  if(!m.open){ o = state.country==="BR" ? t.blockedBR : t.blocked(cname); offer.classList.add("blocked"); offer.dataset.note="G1"; }
+  else if(state.country==="GB"){ o = t.offerGB; offer.dataset.note="T1"; }
+  else { o = t.offerNL; offer.dataset.note="M1"; }
+  offer.innerHTML = "<h3></h3><p class='terms'></p>";
+  offer.querySelector("h3").textContent = o[0];
+  offer.querySelector(".terms").textContent = o[1];
+
+  $("cta").disabled = !m.open || state.minorLocked;
+  $("actions").hidden = !m.open;
+  $("eyebrow").textContent = m.open ? (state.lang==="nl" ? m.licNl : m.lic).split(" · ")[0] : (state.lang==="nl" ? "Geen vergunning in dit land" : "Unlicensed market");
+  $("r4p").textContent = state.country==="NL" ? t.r4NL : t.r4GB;
+  $("cur").textContent = state.country==="NL" ? "€" : "£";
+  $("help").innerHTML = state.country==="NL" ? t.helpNL : t.helpGB;
+  $("footlic").textContent = m.open ? (state.lang==="nl" ? m.licNl : m.lic) + " · " + m.domain : (state.lang==="nl" ? "Geen vergunning voor " : "No licence for ") + cname + ".";
+
+  $("status").innerHTML = "";
+  const pills = [
+    [m.open ? "ok" : "stop", m.open ? "market open" : "geo-blocked"],
+    ["muted", "lang " + (state.lang==="nl" ? "nl" : "en")],
+    ["muted", "utm_medium=masthead"]
+  ];
+  if(state.minorLocked) pills.push(["stop","age gate: locked"]);
+  pills.forEach(([c,txt])=>{ const s=document.createElement("span"); s.className="pill "+c; s.textContent=txt; $("status").appendChild(s); });
+}
+
+$("country").addEventListener("change", e=>{ state.country=e.target.value; state.minorLocked=false; const m=MARKETS[state.country]; if(m.lang) state.lang=m.lang; render(); });
+$("lang-en").addEventListener("click", ()=>{ state.lang="en"; render(); });
+$("lang-nl").addEventListener("click", ()=>{ state.lang="nl"; render(); });
+$("annot").addEventListener("change", e=>document.body.classList.toggle("annot", e.target.checked));
+document.body.classList.add("annot");
+
+/* age gate */
+function ageOn(d,m,y){
+  const today = new Date();
+  let age = today.getFullYear()-y;
+  if(today.getMonth()+1 < m || (today.getMonth()+1===m && today.getDate()<d)) age--;
+  return age;
+}
+function validDate(d,m,y){
+  const dt = new Date(y, m-1, d);
+  return Number.isInteger(d)&&Number.isInteger(m)&&Number.isInteger(y) && y>1900 && dt.getFullYear()===y && dt.getMonth()===m-1 && dt.getDate()===d && dt < new Date();
+}
+$("cta").addEventListener("click", ()=>{
+  $("gate").hidden=false; document.body.classList.add("gate-open"); $("gate-msg").textContent=""; $("gate-msg").className="msg";
+  $("gate-go").disabled=false; showStep("step-age"); $("dd").focus();
+});
+$("gate-close").addEventListener("click", ()=>{ $("gate").hidden=true; document.body.classList.remove("gate-open"); $("cta").focus(); });
+document.addEventListener("keydown", e=>{ if(e.key==="Escape" && !$("gate").hidden){ $("gate").hidden=true; document.body.classList.remove("gate-open"); $("cta").focus(); } });
+function checkAge(){
+  const t=T[state.lang], msg=$("gate-msg");
+  if($("gate-go").disabled) return;
+  const d=+$("dd").value, m=+$("mm").value, y=+$("yy").value;
+  if(!validDate(d,m,y)){ msg.textContent=t.errFormat; msg.className="msg err"; return; }
+  if(ageOn(d,m,y) < 18){
+    state.minorLocked=true; msg.textContent=t.errMinor; msg.className="msg err"; $("gate-go").disabled=true; render(); return;
+  }
+  msg.textContent=""; msg.className="msg";
+  showStep("step-limit"); $("amt").focus();
+}
+function showStep(id){ ["step-age","step-limit","step-done"].forEach(s=>{ $(s).hidden = s!==id; }); }
+let period="week";
+document.querySelectorAll(".chip").forEach(b=>b.addEventListener("click", ()=>{
+  period=b.dataset.period;
+  document.querySelectorAll(".chip").forEach(x=>x.setAttribute("aria-pressed", String(x===b)));
+}));
+$("amt").addEventListener("input", ()=>{ const c=$("amt").value.replace(/\D/g,""); if(c!==$("amt").value) $("amt").value=c; });
+function createAccount(){
+  const t=T[state.lang], v=parseInt($("amt").value,10), lm=$("lim-msg");
+  if(!(v>=1 && v<=100000)){ lm.textContent=t.errAmt; lm.className="msg err"; return; }
+  lm.textContent=""; lm.className="msg";
+  const cur = state.country==="NL" ? "€" : "£";
+  const amt = v.toLocaleString(state.lang==="nl" ? "nl-NL" : "en-GB");
+  $("done-msg").textContent = t.done(cur, amt, t.per[period]) + " " + (state.country==="NL" ? t.okNL : t.okGB);
+  showStep("step-done"); $("done-close").focus();
+}
+function closeGate(){ $("gate").hidden=true; document.body.classList.remove("gate-open"); $("cta").focus(); }
+$("lim-go").addEventListener("click", createAccount);
+$("amt").addEventListener("keydown", e=>{ if(e.key==="Enter"){ e.preventDefault(); createAccount(); } });
+$("lim-close").addEventListener("click", closeGate);
+$("done-close").addEventListener("click", closeGate);
+$("gate-go").addEventListener("click", checkAge);
+const DOB=["dd","mm","yy"];
+DOB.forEach((id,i)=>{
+  const el=$(id);
+  el.addEventListener("input", ()=>{
+    const clean = el.value.replace(/\D/g,"").slice(0, el.maxLength);
+    if(clean !== el.value) el.value = clean;
+    if(clean.length===el.maxLength && DOB[i+1] && document.activeElement===el) $(DOB[i+1]).focus();
+  });
+  el.addEventListener("keydown", e=>{ if(e.key==="Enter"){ e.preventDefault(); checkAge(); } });
+});
+
+/* cookies */
+function closeCookies(choice){
+  $("cookies").hidden=true;
+  try{ localStorage.setItem("bm-cookie", choice); }catch(_){}
+}
+$("ck-reject").addEventListener("click", ()=>closeCookies("essential"));
+$("ck-accept").addEventListener("click", ()=>closeCookies("all"));
+try{ if(localStorage.getItem("bm-cookie")) $("cookies").hidden=true; }catch(_){}
+
+/* roulette wheel: real European pocket order */
+const ORDER=[0,32,15,19,4,21,2,25,17,34,6,27,13,36,11,30,8,23,10,5,24,16,33,1,20,14,31,9,22,18,29,7,28,12,35,3,26];
+const REDS=new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
+const cv=$("wheel"), ctx=cv.getContext("2d");
+const COLOR_CACHE={};
+const css=(n)=>COLOR_CACHE[n] || (COLOR_CACHE[n]=getComputedStyle(document.documentElement).getPropertyValue(n).trim());
+function sizeCanvas(){
+  const dpr=Math.min(window.devicePixelRatio||1,2), w=cv.clientWidth||380;
+  cv.width=w*dpr; cv.height=w*dpr; ctx.setTransform(dpr,0,0,dpr,0,0); return w;
+}
+let W=sizeCanvas(), angle=0;
+function draw(){
+  const c=W/2, R=c-4, inner=R*0.62, seg=Math.PI*2/37;
+  ctx.clearRect(0,0,W,W);
+  ctx.beginPath(); ctx.arc(c,c,R,0,Math.PI*2); ctx.fillStyle=css("--brass"); ctx.fill();
+  ORDER.forEach((n,i)=>{
+    const a0=angle+i*seg-Math.PI/2-seg/2;
+    ctx.beginPath(); ctx.moveTo(c,c); ctx.arc(c,c,R-6,a0,a0+seg); ctx.closePath();
+    ctx.fillStyle = n===0 ? css("--pocket-zero") : REDS.has(n) ? css("--pocket-red") : css("--pocket-black");
+    ctx.fill();
+    ctx.save(); ctx.translate(c,c); ctx.rotate(a0+seg/2+Math.PI/2);
+    ctx.fillStyle=css("--ivory"); ctx.font="600 "+Math.max(8,W*0.028)+"px "+css("--f-mono");
+    ctx.textAlign="center"; ctx.fillText(String(n),0,-(R-6)*0.88); ctx.restore();
+  });
+  ctx.beginPath(); ctx.arc(c,c,inner,0,Math.PI*2); ctx.fillStyle=css("--felt-deep"); ctx.fill();
+  ctx.lineWidth=2; ctx.strokeStyle=css("--brass"); ctx.stroke();
+  for(let k=0;k<8;k++){ const a=angle*0.6+k*Math.PI/4; ctx.beginPath(); ctx.moveTo(c,c); ctx.lineTo(c+Math.cos(a)*inner*0.8,c+Math.sin(a)*inner*0.8); ctx.strokeStyle=css("--felt-line"); ctx.lineWidth=3; ctx.stroke(); }
+  ctx.beginPath(); ctx.arc(c,c,inner*0.18,0,Math.PI*2); ctx.fillStyle=css("--brass"); ctx.fill();
+}
+const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+/* wheel is drawn once; rotation is a CSS animation, so typing never competes with redraws */
+window.addEventListener("resize", ()=>{ W=sizeCanvas(); draw(); });
+document.fonts && document.fonts.ready.then(draw);
+$("to-rg").addEventListener("click", ()=>$("rg").scrollIntoView({behavior: still ? "auto" : "smooth", block:"start"}));
+render();
+draw();
+})();
+</script>
+</body>
+</html>
